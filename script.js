@@ -86,9 +86,6 @@
           // Actual Credential Management API call to get credential object
           const cred = await navigator.credentials.get({
             password: true,
-            federated: {
-              providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
-            },
             mediation: silent ? 'silent' : 'optional'
           });
           // If credential object is available
