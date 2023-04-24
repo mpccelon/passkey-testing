@@ -86,7 +86,7 @@
           // Actual Credential Management API call to get credential object
           const cred = await navigator.credentials.get({
             password: true,
-            mediation: silent ? 'silent' : 'optional'
+            mediation: 'optional'
           });
           // If credential object is available
           if (cred) {
