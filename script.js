@@ -80,6 +80,90 @@
         });
       }
       
+      let startAutoSigninDialogRequest = async () => {
+        console.log("attempting non-webauthn credential manager api dialog")
+        if (window.PasswordCredential || window.FederatedCredential) {
+          // Actual Credential Management API call to get credential object
+          const cred = await navigator.credentials.get({
+            password: true,
+            federated: {
+              providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
+            },
+            mediation: silent ? 'silent' : 'optional'
+          });
+          // If credential object is available
+          if (cred) {
+            console.log('auto sign-in performed');
+            console.log(cred.toString());
+      
+            // let promise;
+            // switch (cred.type) {
+            //   case 'password':
+            //     // If `password` prop doesn't exist, this is Chrome < 60
+            //     if (cred.password === undefined) {
+            //       cred.idName = 'email';
+            //       promise = app._fetch(PASSWORD_LOGIN, cred);
+      
+            //     // Otherwise, this is Chrome => 60
+            //     } else {
+            //       // Change form `id` name to `email`
+            //       const form = new FormData();
+            //       form.append('email', cred.id);
+            //       form.append('password', cred.password);
+            //       promise = app._fetch(PASSWORD_LOGIN, form);
+            //     }
+            //     break;
+            //   case 'federated':
+            //     switch (cred.provider) {
+            //       case GOOGLE_SIGNIN:
+            //         // Return Promise from `gSignIn`
+            //         promise = app.gSignIn(cred.id);
+            //         break;
+            //       case FACEBOOK_LOGIN:
+            //         // Return Promise from `fbSignIn`
+            //         promise = app.fbSignIn();
+            //         break;
+            //     }
+            //     break;
+            // }
+            // if (promise) {
+            //   return promise.then(app.signedIn);
+            // } else {
+            //   return Promise.resolve();
+            // }
+          } else {
+            console.log('auto sign-in not performed');
+      
+            // Resolve if credential object is not available
+            return Promise.resolve();
+          }
+        } else {
+          // Resolve if Credential Management API is not available
+          return Promise.resolve();
+        }
+      }
+
+      let _fetch = async function(provider, c = new FormData()) {
+        let url = './site.html';
+      
+        const res = await fetch(url, {
+          method: 'POST',
+          // `credentials:'include'` is required to include cookies on `fetch`
+          credentials: 'include',
+          headers: {
+            // `X-Requested-With` header to avoid CSRF attacks
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: c
+        });
+        // Convert JSON string to an object
+        if (res.status === 200) {
+          return res.json();
+        } else {
+          return Promise.reject();
+        }
+      };
+
       startConditionalRequest();
       
       document.getElementById("manual-login").addEventListener("click", (e) => {
